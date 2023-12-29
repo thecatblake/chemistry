@@ -16,7 +16,9 @@ module Numerics where
         Yttrium |
         Mercury  | 
         Phosphorus |
-        Iron 
+        Iron |
+        Aluminium |
+        Sodium
         deriving (Eq, Ord, Show)
 
     data Compound = 
@@ -33,7 +35,13 @@ module Numerics where
         Water |
         Ammonia |
         Oxygen2 | 
-        Iron3Sulfide
+        Iron3Sulfide |
+        AmmoniumPerchlorate |
+        AluminiumOxide |
+        AluminiumChloride |
+        NitricOxide |
+        SodiumBicarbonate |
+        CitricAcid
         deriving (Eq, Show)
 
     type EmpiricalFormula = [(Element, Integer)]
@@ -56,6 +64,8 @@ module Numerics where
     relativeMass Mercury = 200.59
     relativeMass Phosphorus = 30.974
     relativeMass Iron = 55.845
+    relativeMass Aluminium = 26.982
+    relativeMass Sodium = 22.990 
 
     empiricalFormula :: Compound -> EmpiricalFormula
     empiricalFormula Hydrogen2 = [(Hydrogen, 2)]
@@ -72,6 +82,12 @@ module Numerics where
     empiricalFormula Ammonia = [(Nitrogen, 1), (Hydrogen, 3)]
     empiricalFormula Oxygen2 = [(Oxygen, 2)]
     empiricalFormula Iron3Sulfide = [(Iron, 2), (Sulfur, 3)]
+    empiricalFormula AmmoniumPerchlorate = [(Nitrogen, 1), (Hydrogen, 4), (Chlorine, 1), (Oxygen, 4)]
+    empiricalFormula AluminiumOxide = [(Aluminium, 2), (Oxygen, 3)]
+    empiricalFormula AluminiumChloride = [(Aluminium, 1), (Chlorine, 3)]
+    empiricalFormula NitricOxide = [(Nitrogen, 1), (Oxygen, 1)]
+    empiricalFormula SodiumBicarbonate = [(Sodium, 1), (Hydrogen, 1), (Carbon, 1), (Oxygen, 3)]
+    empiricalFormula CitricAcid = [(Carbon, 6), (Hydrogen, 8), (Oxygen, 7)]
 
     empForMulToEmpFor :: EmpiricalFormulaMultiple -> EmpiricalFormula
     empForMulToEmpFor (emf, n) = map (\(e, m) -> (e, m*n)) emf
@@ -86,6 +102,7 @@ module Numerics where
     addEmpiricalFormula emf1 emf2 = mapToEmpiricalFormula $ foldr (\(e, n) xs -> M.insert e (M.findWithDefault 0 e xs + n) xs) M.empty (emf1 ++ emf2)
 
     glucoseCombustionReaction = Reaction [(empiricalFormula Glucose, 1), (empiricalFormula Oxygen2, 6)] [(empiricalFormula CarbonDioxide, 6), (empiricalFormula Water, 6)]
+
 
     checkReaction :: Reaction -> Bool
     checkReaction (Reaction left right) = (S.isSubsetOf left' right') && (S.isSubsetOf right' left')
@@ -126,8 +143,11 @@ module Numerics where
     amountToMass :: AmUnit -> Double -> Double
     amountToMass am m = m * amountToMol am
 
+    elementToMol :: MassUnit -> Element -> Double
+    elementToMol m e = massToGram m / relativeMass e
+
     elementsToMols :: [MassUnit] -> [Element] -> [Double]
-    elementsToMols ms es = zipWith  massToMol ms (map relativeMass es)
+    elementsToMols ms es = zipWith elementToMol ms es
 
     calcEmpricalFormula :: [AmUnit] -> [Element] -> EmpiricalFormula
     calcEmpricalFormula ams es = zip es (map (\x -> round (x / (minimum xs))) xs)
@@ -140,8 +160,11 @@ module Numerics where
     molForToNumAtoms :: EmpiricalFormula -> Integer
     molForToNumAtoms = sum . map snd
 
-    compoundMass :: Compound -> Double
-    compoundMass = sumMass . empiricalFormula
+    compoundMolarMass :: Compound -> Double
+    compoundMolarMass = sumMass . empiricalFormula
+
+    compoundMass :: AmUnit -> Compound -> Double
+    compoundMass am c = amountToMol am * compoundMolarMass c
 
     compoundMol :: MassUnit -> Compound -> Double
     compoundMol m c = massToMol m (sumMass (empiricalFormula c))
