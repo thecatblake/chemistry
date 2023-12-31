@@ -41,7 +41,11 @@ module Numerics where
         AluminiumChloride |
         NitricOxide |
         SodiumBicarbonate |
-        CitricAcid
+        CitricAcid | 
+        BariumPeroxide |
+        Bornite | 
+        HydrogenCyanide |
+        Methane
         deriving (Eq, Show)
 
     type EmpiricalFormula = [(Element, Integer)]
@@ -88,6 +92,10 @@ module Numerics where
     empiricalFormula NitricOxide = [(Nitrogen, 1), (Oxygen, 1)]
     empiricalFormula SodiumBicarbonate = [(Sodium, 1), (Hydrogen, 1), (Carbon, 1), (Oxygen, 3)]
     empiricalFormula CitricAcid = [(Carbon, 6), (Hydrogen, 8), (Oxygen, 7)]
+    empiricalFormula BariumPeroxide = [(Barium, 1), (Oxygen, 2)]
+    empiricalFormula Bornite = [(Copper, 3), (Iron, 1), (Sulfur, 3)]
+    empiricalFormula HydrogenCyanide = [(Hydrogen, 1), (Carbon, 1), (Nitrogen, 1)]
+    empiricalFormula Methane = [(Carbon, 1), (Hydrogen, 4)]
 
     empForMulToEmpFor :: EmpiricalFormulaMultiple -> EmpiricalFormula
     empForMulToEmpFor (emf, n) = map (\(e, m) -> (e, m*n)) emf
@@ -117,13 +125,19 @@ module Numerics where
     data MassUnit = 
         MiliGram Double | 
         Gram Double |
-        KiloGram Double
+        KiloGram Double |
+        MetricTon Double
         deriving (Eq, Show)
 
     data AmUnit =
         Mol Double |
         TheNumber Double
         deriving (Eq, Show)
+
+    data VolumeUnit = 
+        MiliLitter Double |
+        Litter Double 
+        deriving (Eq, Ord, Show)
 
     sumMass :: EmpiricalFormula -> Double
     sumMass = sum . map (\(e,n) -> relativeMass e * (fromInteger n)) 
@@ -132,6 +146,7 @@ module Numerics where
     massToGram (MiliGram x) = x / 1000
     massToGram (Gram x) = x
     massToGram (KiloGram x) = 1000 * x
+    massToGram (MetricTon x) = 1000 * 1000 * x
 
     massToMol :: MassUnit -> Double -> Double
     massToMol m = (/) (massToGram m)
@@ -160,6 +175,9 @@ module Numerics where
     molForToNumAtoms :: EmpiricalFormula -> Integer
     molForToNumAtoms = sum . map snd
 
+    empiricalMol :: EmpiricalFormula -> MassUnit -> Double
+    empiricalMol e m = massToMol m (sumMass e)
+
     compoundMolarMass :: Compound -> Double
     compoundMolarMass = sumMass . empiricalFormula
 
@@ -167,7 +185,7 @@ module Numerics where
     compoundMass am c = amountToMol am * compoundMolarMass c
 
     compoundMol :: MassUnit -> Compound -> Double
-    compoundMol m c = massToMol m (sumMass (empiricalFormula c))
+    compoundMol m c = empiricalMol (empiricalFormula c) m
 
     compoundMols :: MassUnit -> Compound -> [(Element, Double)]
     compoundMols m c = map (\(e, n) -> (e, (fromInteger n) * x)) (empiricalFormula c)
@@ -179,5 +197,5 @@ module Numerics where
                                 where 
                                     total = sumMass mf
 
-    empiricalMass :: EmpiricalFormula -> MassUnit -> [(Element, Double)]
-    empiricalMass ef m = map (\(e, x) -> (e, x * (massToGram m))) (percentComposition ef)
+    elementsMass :: EmpiricalFormula -> MassUnit -> [(Element, Double)]
+    elementsMass ef m = map (\(e, x) -> (e, x * (massToGram m))) (percentComposition ef)
