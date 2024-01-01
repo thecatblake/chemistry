@@ -177,6 +177,12 @@ module Numerics where
         Litter Double 
         deriving (Eq, Ord, Show)
 
+    data PressureUnit = 
+        Atm Double |
+        Torr Double |
+        Pascal Double
+        deriving (Eq, Ord, Show)
+
     sumMass :: EmpiricalFormula -> Double
     sumMass = sum . map (\(e,n) -> relativeMass e * (fromInteger n)) 
 
@@ -196,6 +202,11 @@ module Numerics where
     volumeToLitter :: VolumeUnit -> Double
     volumeToLitter (MiliLitter x) = x / 1000
     volumeToLitter (Litter x) = x
+
+    pressureToPascal :: PressureUnit -> Double
+    pressureToPascal (Atm x) = 101325 * x
+    pressureToPascal (Torr x) = x / 760 * 101325
+    pressureToPascal (Pascal x) = x
 
     amountToMass :: AmUnit -> Double -> Double
     amountToMass am m = m * amountToMol am
