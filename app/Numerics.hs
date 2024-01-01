@@ -18,7 +18,17 @@ module Numerics where
         Phosphorus |
         Iron |
         Aluminium |
-        Sodium
+        Sodium |
+        Silver | 
+        Lead | 
+        Calcium | 
+        Cerium | 
+        Potassium |
+        Manganese |
+        Chromium |
+        Zinc |
+        Magnesium | 
+        Bromine
         deriving (Eq, Ord, Show)
 
     data Compound = 
@@ -45,7 +55,16 @@ module Numerics where
         BariumPeroxide |
         Bornite | 
         HydrogenCyanide |
-        Methane
+        Methane | 
+        SilverChloride | 
+        SilverNitrate |
+        SodiumChloride | 
+        LeadSulfate |
+        SodiumSulfate | 
+        CarbonTetrachloride |
+        PotassiumPermanganate | 
+        PotassiumDichromate |
+        CeriumHydrogenSulfate
         deriving (Eq, Show)
 
     type EmpiricalFormula = [(Element, Integer)]
@@ -70,6 +89,16 @@ module Numerics where
     relativeMass Iron = 55.845
     relativeMass Aluminium = 26.982
     relativeMass Sodium = 22.990 
+    relativeMass Silver = 107.87
+    relativeMass Lead = 207.20
+    relativeMass Calcium = 40.078
+    relativeMass Cerium = 140.12
+    relativeMass Potassium = 39.098
+    relativeMass Manganese = 54.938
+    relativeMass Chromium = 51.996
+    relativeMass Zinc = 65.380
+    relativeMass Magnesium = 24.305
+    relativeMass Bromine = 79.904
 
     empiricalFormula :: Compound -> EmpiricalFormula
     empiricalFormula Hydrogen2 = [(Hydrogen, 2)]
@@ -96,6 +125,15 @@ module Numerics where
     empiricalFormula Bornite = [(Copper, 3), (Iron, 1), (Sulfur, 3)]
     empiricalFormula HydrogenCyanide = [(Hydrogen, 1), (Carbon, 1), (Nitrogen, 1)]
     empiricalFormula Methane = [(Carbon, 1), (Hydrogen, 4)]
+    empiricalFormula SilverChloride = [(Silver, 1), (Chlorine, 1)]
+    empiricalFormula SilverNitrate = [(Silver, 1), (Nitrogen, 1), (Oxygen, 3)]
+    empiricalFormula SodiumChloride = [(Sodium, 1), (Chlorine, 1)]
+    empiricalFormula LeadSulfate = [(Lead, 1), (Sulfur, 1), (Oxygen, 4)]
+    empiricalFormula SodiumSulfate = [(Sodium, 2), (Sulfur, 1), (Oxygen, 4)]
+    empiricalFormula CarbonTetrachloride = [(Carbon, 1), (Chlorine, 4)]
+    empiricalFormula PotassiumPermanganate = [(Potassium, 1), (Manganese, 1), (Oxygen, 4)]
+    empiricalFormula PotassiumDichromate = [(Potassium, 2), (Chromium, 2), (Oxygen, 7)]
+    empiricalFormula CeriumHydrogenSulfate = [(Cerium, 1), (Hydrogen, 4), (Sulfur, 4), (Oxygen, 16)]
 
     empForMulToEmpFor :: EmpiricalFormulaMultiple -> EmpiricalFormula
     empForMulToEmpFor (emf, n) = map (\(e, m) -> (e, m*n)) emf
@@ -155,6 +193,10 @@ module Numerics where
     amountToMol (Mol x) = x 
     amountToMol (TheNumber x) = x / avogadroNumber
 
+    volumeToLitter :: VolumeUnit -> Double
+    volumeToLitter (MiliLitter x) = x / 1000
+    volumeToLitter (Litter x) = x
+
     amountToMass :: AmUnit -> Double -> Double
     amountToMass am m = m * amountToMol am
 
@@ -177,6 +219,9 @@ module Numerics where
 
     empiricalMol :: EmpiricalFormula -> MassUnit -> Double
     empiricalMol e m = massToMol m (sumMass e)
+
+    empiricalMass :: EmpiricalFormula -> AmUnit -> Double
+    empiricalMass e am = amountToMol am * sumMass e
 
     compoundMolarMass :: Compound -> Double
     compoundMolarMass = sumMass . empiricalFormula
