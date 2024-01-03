@@ -68,6 +68,15 @@ module Numerics where
         CeriumHydrogenSulfate 
         deriving (Eq, Show)
 
+
+    data Ion = 
+        HydrogenIon |
+        Hydroxide | 
+        ChlorideIon |
+        Nitrate | 
+        Cyanide
+        deriving (Eq, Show)
+
     type EmpiricalFormula = [(Element, Integer)]
     type EmpiricalFormulaMultiple = (EmpiricalFormula, Integer)
 
@@ -136,6 +145,13 @@ module Numerics where
     empiricalFormula PotassiumPermanganate = [(Potassium, 1), (Manganese, 1), (Oxygen, 4)]
     empiricalFormula PotassiumDichromate = [(Potassium, 2), (Chromium, 2), (Oxygen, 7)]
     empiricalFormula CeriumHydrogenSulfate = [(Cerium, 1), (Hydrogen, 4), (Sulfur, 4), (Oxygen, 16)]
+
+    ionCharge :: Ion -> Integer
+    ionCharge HydrogenIon = 1
+    ionCharge Hydroxide = -1
+    ionCharge ChlorideIon = -1
+    ionCharge Nitrate = -1
+    ionCharge Cyanide = 1
 
     empForMulToEmpFor :: EmpiricalFormulaMultiple -> EmpiricalFormula
     empForMulToEmpFor (emf, n) = map (\(e, m) -> (e, m*n)) emf
