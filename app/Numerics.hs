@@ -28,7 +28,8 @@ module Numerics where
         Chromium |
         Zinc |
         Magnesium | 
-        Bromine
+        Bromine |
+        Berylium
         deriving (Eq, Ord, Show)
 
     data Compound = 
@@ -64,7 +65,7 @@ module Numerics where
         CarbonTetrachloride |
         PotassiumPermanganate | 
         PotassiumDichromate |
-        CeriumHydrogenSulfate
+        CeriumHydrogenSulfate 
         deriving (Eq, Show)
 
     type EmpiricalFormula = [(Element, Integer)]
@@ -99,6 +100,7 @@ module Numerics where
     relativeMass Zinc = 65.380
     relativeMass Magnesium = 24.305
     relativeMass Bromine = 79.904
+    relativeMass Berylium = 9.0122
 
     empiricalFormula :: Compound -> EmpiricalFormula
     empiricalFormula Hydrogen2 = [(Hydrogen, 2)]
@@ -183,6 +185,9 @@ module Numerics where
         Pascal Double
         deriving (Eq, Ord, Show)
 
+    ratm :: Double
+    ratm = 0.08206 
+
     sumMass :: EmpiricalFormula -> Double
     sumMass = sum . map (\(e,n) -> relativeMass e * (fromInteger n)) 
 
@@ -255,3 +260,8 @@ module Numerics where
 
     elementsMass :: EmpiricalFormula -> MassUnit -> [(Element, Double)]
     elementsMass ef m = map (\(e, x) -> (e, x * (massToGram m))) (percentComposition ef)
+
+    solveQuadraticEq :: Double -> Double -> Double -> (Double, Double)
+    solveQuadraticEq a b c = (((-b) + d) / (2 * a), ((-b) - d) / (2 * a))
+                                where 
+                                    d = sqrt ( b * b - 4 * a * c)
